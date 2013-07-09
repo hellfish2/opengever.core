@@ -115,6 +115,7 @@ setup(name='opengever.core',
         'z3c.saconfig',
         'zc.relation',
         'zope.globalrequest',
+        'fake-factory',
         # -*- Extra requirements: -*-
         ],
       tests_require=tests_require,
