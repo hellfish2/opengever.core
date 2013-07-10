@@ -6,6 +6,8 @@ from opengever.core.builder import get_repo_folders
 from ftw.builder import create
 from ftw.builder import Builder
 import transaction
+import time
+
 
 def run_import(app, options):
 
@@ -17,9 +19,14 @@ def run_import(app, options):
     setSite(plone)
     session.current_session = session.factory()
     session.current_session.file_path = options.file_path
-    session.current_session.repofolders = get_repo_folders
-    create(Builder('gever').having({'num_dossiers': options.dossiers, 'num_files':options.files})).create()
+    session.current_session.repofolders = list(get_repo_folders())
+    start = time.time()
+    print "Starting import:\n ------------------"
+    create(Builder('gever').having(**{'num_dossiers': int(options.dossiers), 'num_files': int(options.files)}))
+    print "commiting Transaction"
     transaction.commit()
+    elapsed = time.time() - start
+    print "Done in %.0f seconds" % elapsed
     # Patch the inital version from opengever document
 
 

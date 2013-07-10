@@ -11,7 +11,11 @@ def get_random_file(path):
     if len(files) == 0:
         raise KeyError("No files were Found in the given folder")
     filename = random.choice(files)
-    file_ = open(filename, 'r')
-    blob_file = NamedBlobFile(data=file_.read(), filename=os.path.basename(file_.name.decode('utf-8')))
-    file_.close()
-    return blob_file
+    if os.path.splitext(filename)[1] == '':
+        return get_random_file(path)
+    else:
+        file_ = open(filename, 'r')
+        print "picked file: %s" % file_.name
+        blob_file = NamedBlobFile(data=file_.read(), filename=os.path.basename(file_.name.decode('utf-8')))
+        file_.close()
+        return blob_file

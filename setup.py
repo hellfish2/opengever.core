@@ -116,6 +116,7 @@ setup(name='opengever.core',
         'zc.relation',
         'zope.globalrequest',
         'fake-factory',
+        'ftw.builder',
         # -*- Extra requirements: -*-
         ],
       tests_require=tests_require,

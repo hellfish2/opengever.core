@@ -363,7 +363,6 @@ def sync_title_and_filename_handler(doc, event):
         doc.file.filename = ''.join(
             [normalizer.normalize(doc.title), ext])
 
-
 @grok.subscribe(IDocumentSchema, IObjectCopiedEvent)
 def set_copyname(doc, event):
     """Documents wich are copied, should be renamed to copy of filename
