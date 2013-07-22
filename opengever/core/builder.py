@@ -11,7 +11,7 @@ from opengever.testing.builders import DossierBuilder
 from zope.component.hooks import getSite
 import os
 import random
-
+import transaction
 
 class GeverBuilder(PloneObjectBuilder):
 
@@ -27,6 +27,7 @@ class GeverBuilder(PloneObjectBuilder):
                                                      docs_in_dossier
                                                      )
             print "filled Dossier %i out of %i" % (counter + 1, num_dossiers)
+            transaction.commit()
 
 builder_registry.register('gever', GeverBuilder)
 
@@ -73,7 +74,7 @@ def get_random_repofolder():
     return random.choice(session.current_session.repofolders)
 
 def get_docs_in_dossier(index):
-    return session.current_session.files_in_folders['index']
+    return session.current_session.files_in_folders[index]
 
 def initalize_file_list(dossiers, files):
     dossierslist = []
@@ -86,7 +87,7 @@ def initalize_file_list(dossiers, files):
         if files_overall + files_in_dossier > files:
             files_in_dossier = files - files_overall
         files_overall += files_in_dossier
-        dossierslist.append[files_in_dossier]
+        dossierslist.append(files_in_dossier)
     if files_overall < files:
         index = random.randint(0, dossiers)
         dossierslist[index] += files - files_overall

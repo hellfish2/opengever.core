@@ -7,7 +7,6 @@ from opengever.core.builder import initalize_file_list
 from optparse import OptionParser
 from zope.app.component.hooks import setSite
 import time
-import transaction
 from opengever.core.builder import get_docs_in_dossier
 
 def run_import(app, options):
@@ -21,13 +20,11 @@ def run_import(app, options):
     session.current_session = session.factory()
     session.current_session.file_path = options.file_path
     session.current_session.repofolders = list(get_repo_folders())
-    session.current_session.files_in_folders = initalize_file_list(options.dossiers, options.files)
+    session.current_session.files_in_folders = initalize_file_list(int(options.dossiers), int(options.files))
     session.current_session.get_docs_in_dossier = get_docs_in_dossier
     start = time.time()
     print "Starting import:\n ------------------"
     create(Builder('gever').having(**{'num_dossiers': int(options.dossiers), 'num_files': int(options.files)}))
-    print "commiting Transaction"
-    transaction.commit()
     elapsed = time.time() - start
     print "Done in %.0f seconds" % elapsed
     # Patch the inital version from opengever document
