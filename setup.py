@@ -25,6 +25,7 @@ tests_require = [
     'zope.globalrequest',
     'zope.testing',
     'ftw.builder',
+    'ftw.zipexport',
 ]
 
 setup(name='opengever.core',
@@ -80,6 +81,7 @@ setup(name='opengever.core',
         'ftw.tooltip',
         'ftw.treeview',
         'ftw.upgrade',
+        'ftw.zipexport',
         'opengever.ogds.models',
         'ordereddict',
         'plone.app.dexterity',

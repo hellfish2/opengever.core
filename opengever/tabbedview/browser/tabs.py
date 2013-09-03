@@ -202,6 +202,7 @@ class Documents(OpengeverCatalogListingTab):
 
     enabled_actions = [
         'send_as_email',
+        'zip_selected',
         'checkout',
         'checkin',
         'cancel',
