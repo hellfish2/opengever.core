@@ -1,0 +1,16 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="opengever.ogds.base">
+
+    <!-- 1 -> 2601 -->
+    <genericsetup:upgradeStep
+        title="Activate LDAP Caching."
+        description=""
+        source="1"
+        destination="2601"
+        handler="opengever.ogds.base.upgrades.to2601.ActivateLDAPCaching"
+        profile="opengever.ogds.base:default"
+        />
+
+</configure>

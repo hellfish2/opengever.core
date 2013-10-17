@@ -1,3 +1,9 @@
+from Products.CMFPlone.browser.admin import AddPloneSite
+from Products.CMFPlone.factory import _DEFAULT_PROFILE
+from Products.CMFPlone.factory import addPloneSite
+from Products.CMFPlone.utils import getToolByName
+from Products.LDAPMultiPlugins.interfaces import ILDAPMultiPlugin
+from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 from datetime import datetime
 from opengever.mail.interfaces import IMailSettings
 from opengever.ogds.base.interfaces import IClientConfiguration
@@ -11,11 +17,6 @@ from opengever.setup.utils import get_entry_points
 from opengever.setup.utils import get_ldap_configs, get_policy_configs
 from plone.app.controlpanel.language import ILanguageSelectionSchema
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.browser.admin import AddPloneSite
-from Products.CMFPlone.factory import addPloneSite
-from Products.CMFPlone.factory import _DEFAULT_PROFILE
-from Products.CMFPlone.utils import getToolByName
-from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 from sqlalchemy.exc import NoReferencedTableError
 from zope.component import getAdapter
 from zope.component import getUtility
@@ -298,6 +299,8 @@ class CreateOpengeverClient(BrowserView):
         # the og_admin_user is not longer used so we set him to inactive
         og_admin_user.active = False
 
+        self.activate_ldap_caching(site)
+
         return 'ok'
 
     def drop_sql_tables(self, session):
@@ -317,3 +320,9 @@ class CreateOpengeverClient(BrowserView):
                 email_from_address = getattr(module, 'EMAIL_FROM_ADDRESS')
 
         return email_from_address
+
+    def activate_ldap_caching(self, site):
+        for item in site.get('acl_users').objectValues():
+            if ILDAPMultiPlugin.providedBy(item):
+                item.ZCacheable_setManagerId('RAMCache')
+                item.ZCacheable_setEnabled(1)
