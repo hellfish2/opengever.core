@@ -52,4 +52,23 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
+    <!-- 2104 -> 2105 -->
+    <genericsetup:upgradeStep
+        title="Add IClassification on mail"
+        description=""
+        source="2104"
+        destination="2105"
+        handler="opengever.mail.upgrades.to2105.AddIClassification"
+        profile="opengever.mail:default"
+        />
+
+    <genericsetup:registerProfile
+        name="2105"
+        title="opengever.mail: upgrade profile 2105"
+        description=""
+        directory="profiles/2105"
+        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
 </configure>
