@@ -4,6 +4,9 @@ Changelog
 3.2.5 (unreleased)
 ------------------
 
+- Added public trial to document tab.
+  [lknoepfel]
+
 - Added public_trial index and metadata field.
   [lknoepfel]
 
