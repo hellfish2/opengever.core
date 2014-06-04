@@ -1,4 +1,3 @@
-from Products.CMFCore.utils import getToolByName
 from datetime import date
 from ftw.builder import Builder
 from ftw.builder import create
@@ -7,15 +6,17 @@ from opengever.document.behaviors import IBaseDocument
 from opengever.document.document import IDocumentSchema
 from opengever.document.document import UploadValidator
 from opengever.document.interfaces import IDocumentSettings
-from opengever.testing import FunctionalTestCase
 from opengever.testing import create_ogds_user
-from opengever.testing.helpers import obj2brain
+from opengever.testing import FunctionalTestCase
+from opengever.testing import index_data_for
+from opengever.testing import obj2brain
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.fti import register
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
 from z3c.form import interfaces
 from z3c.form.interfaces import IValue
 from zope.component import createObject
@@ -269,3 +270,36 @@ class TestDocumentAuthorResolving(FunctionalTestCase):
         self.browser.click('Save')
 
         self.assertEquals('Muster Peter', document.document_author)
+
+
+class TestPublicTrial(FunctionalTestCase):
+
+    def setUp(self):
+        super(TestPublicTrial, self).setUp()
+
+        self.grant('Manager')
+
+        self.document = create(Builder('document')
+                               .having(public_trial='private'))
+        self.mail = create(Builder('mail')
+                           .having(public_trial='public'))
+
+    def test_public_trial_metadata_field_exists(self):
+        docbrain = obj2brain(self.document)
+        mailbrain = obj2brain(self.mail)
+
+        self.assertEquals('private',
+                          docbrain.public_trial)
+        self.assertEquals('public',
+                          mailbrain.public_trial)
+
+    def test_public_trial_index_exists_and_is_used(self):
+        catalog = getToolByName(self.portal, 'portal_catalog')
+
+        # check if index exists
+        self.assertIn('public_trial',
+                      catalog.indexes())
+
+        # check if object got indexed
+        self.assertEquals('public',
+                          index_data_for(self.mail).get('public_trial'))
