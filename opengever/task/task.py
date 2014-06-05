@@ -9,8 +9,10 @@ from ftw.datepicker.widget import DatePickerFieldWidget
 from opengever.base.interfaces import IReferenceNumber
 from opengever.base.interfaces import ISequenceNumber
 from opengever.base.source import DossierPathSourceBinder
+from opengever.globalindex.interfaces import ITaskQuery
 from opengever.ogds.base.autocomplete_widget import AutocompleteFieldWidget
 from opengever.ogds.base.utils import get_client_id
+from opengever.ogds.base.utils import get_current_admin_unit
 from opengever.ogds.base.utils import get_current_org_unit
 from opengever.ogds.base.utils import ogds_service
 from opengever.task import _
@@ -228,6 +230,17 @@ class Task(Container):
     @property
     def client_id(self):
         return get_client_id()
+
+    @property
+    def int_id(self):
+        return getUtility(IIntIds).getId(self)
+
+    def get_issuer_label(self):
+        return self.get_sql_object().get_issuer_label()
+
+    def get_sql_object(self):
+        query = getUtility(ITaskQuery)
+        return query.get_task(self.int_id, get_current_admin_unit().id())
 
     @property
     def safe_title(self):
