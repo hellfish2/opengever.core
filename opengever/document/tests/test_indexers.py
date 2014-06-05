@@ -49,12 +49,13 @@ class TestDocumentIndexers(FunctionalTestCase):
         self.assertEquals(
             index_data_for(doc1).get('sortable_author'), u'H\xfcgo B\xf6ss')
 
-    def test_date_indexers(self):
-        doc1 = createContentInContainer(
-            self.portal, 'opengever.document.document',
+    def test_date_indexers_hanspeter(self):
+        from ftw.builder import Builder
+        from ftw.builder import create
+        doc1 = create(Builder('document').having(
             title=u"Doc One",
             document_date=datetime.date(2011,1,1),
-            receipt_date=datetime.date(2011, 2, 1))
+            receipt_date=datetime.date(2011, 2, 1)))
 
         # document_date
         self.assertEquals(

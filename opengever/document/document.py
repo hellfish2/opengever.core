@@ -1,18 +1,15 @@
 from Acquisition import aq_inner, aq_parent
 from collective import dexteritytextindexer
-from collective.elephantvocabulary import wrap_vocabulary
-from datetime import date
 from five import grok
-from ftw.datepicker.widget import DatePickerFieldWidget
 from ftw.mail.interfaces import IEmailAddress
 from opengever.document import _
 from opengever.document.interfaces import IDocumentSettings
 from opengever.dossier.behaviors.dossier import IDossierMarker
+from plone.autoform import directives as form_directives
 from plone.dexterity.content import Item
 from plone.directives import form
 from plone.namedfile.field import NamedBlobFile
 from plone.registry.interfaces import IRegistry
-from plone.z3cform.textlines.textlines import TextLinesFieldWidget
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.common import MimeTypeException
 from z3c.form import validator
@@ -44,79 +41,20 @@ class IDocumentSchema(form.Schema):
         label=_(u'fieldset_common', u'Common'),
         fields=[
             u'title',
-            u'description',
-            u'keywords',
-            u'foreign_reference',
-            u'document_date',
-            u'receipt_date',
-            u'delivery_date',
-            u'document_type',
-            u'document_author',
             u'file',
             u'digitally_available',
             u'preserved_as_paper',
-            u'archival_file',
-            u'thumbnail',
             ],
         )
 
     dexteritytextindexer.searchable('title')
+    form_directives.order_after(title='file')
     title = schema.TextLine(
         title=_(u'label_title', default=u'Title'),
         required=False)
 
-    dexteritytextindexer.searchable('description')
-    description = schema.Text(
-        title=_(u'label_description', default=u'Description'),
-        description=_(u'help_description', default=u''),
-        required=False,
-        )
-
-    dexteritytextindexer.searchable('keywords')
-    keywords = schema.Tuple(
-        title=_(u'label_keywords', default=u'Keywords'),
-        description=_(u'help_keywords', default=u''),
-        value_type=schema.TextLine(),
-        required=False,
-        missing_value=(),
-        )
-    form.widget(keywords=TextLinesFieldWidget)
-
-    foreign_reference = schema.TextLine(
-        title=_(u'label_foreign_reference', default='Foreign Reference'),
-        description=_('help_foreign_reference', default=''),
-        required=False,
-        )
-
-    document_date = schema.Date(
-        title=_(u'label_document_date', default='Document Date'),
-        description=_(u'help_document_date', default=''),
-        required=False,
-        )
-
-    #workaround because ftw.datepicker wasn't working
-    form.widget(document_date=DatePickerFieldWidget)
-
-    document_type = schema.Choice(
-        title=_(u'label_document_type', default='Document Type'),
-        description=_(u'help_document_type', default=''),
-        source=wrap_vocabulary('opengever.document.document_types',
-                    visible_terms_from_registry='opengever.document' +
-                            '.interfaces.IDocumentType.document_types'),
-        required=False,
-        )
-
-    dexteritytextindexer.searchable('document_author')
-    document_author = schema.TextLine(
-        title=_(u'label_author', default='Author'),
-        description=_(u'help_author',
-                      default="Surname firstname or a userid"
-                      "(would be automatically resolved to fullname)"),
-        required=False,
-        )
-
-#    dexteritytextindexer.searchable('file')
     form.primary('file')
+    form_directives.order_after(file='IDocumentMetadata.document_author')
     file = NamedBlobFile(
         title=_(u'label_file', default='File'),
         description=_(u'help_file', default=''),
@@ -138,43 +76,6 @@ class IDocumentSchema(form.Schema):
         required=False,
         default=True,
         )
-
-    form.omitted('archival_file')
-    archival_file = NamedBlobFile(
-        title=_(u'label_archival_file', default='Archival File'),
-        description=_(u'help_archival_file', default=''),
-        required=False,
-        )
-
-    form.omitted('thumbnail')
-    thumbnail = NamedBlobFile(
-        title=_(u'label_thumbnail', default='Thumbnail'),
-        description=_(u'help_thumbnail', default=''),
-        required=False,
-        )
-
-    form.omitted('preview')
-    preview = NamedBlobFile(
-        title=_(u'label_preview', default='Preview'),
-        description=_(u'help_preview', default=''),
-        required=False,
-        )
-
-    receipt_date = schema.Date(
-        title=_(u'label_receipt_date', default='Date of receipt'),
-        description=_(u'help_receipt_date', default=''),
-        required=False,
-        )
-    #workaround because ftw.datepicker wasn't working
-    form.widget(receipt_date=DatePickerFieldWidget)
-
-    delivery_date = schema.Date(
-        title=_(u'label_delivery_date', default='Date of delivery'),
-        description=_(u'help_delivery_date', default=''),
-        required=False,
-        )
-    #workaround because ftw.datepicker wasn't working
-    form.widget(delivery_date=DatePickerFieldWidget)
 
     @invariant
     def title_or_file_required(data):
@@ -228,13 +129,6 @@ validator.WidgetValidatorDiscriminators(
     )
 
 grok.global_adapter(UploadValidator)
-
-
-# Default values
-@form.default_value(field=IDocumentSchema['document_date'])
-def default_document_date(data):
-    """Set the actual date as default document_date"""
-    return date.today()
 
 
 @form.default_value(field=IDocumentSchema['preserved_as_paper'])
