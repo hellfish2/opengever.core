@@ -5,7 +5,7 @@ from opengever.base.browser.helper import client_title_helper
 from opengever.base.browser.helper import get_css_class
 from opengever.globalindex.model.task import Task
 from opengever.ogds.base.interfaces import IContactInformation
-from opengever.ogds.base.utils import get_client_id
+from opengever.ogds.base.utils import get_current_admin_unit
 from opengever.ogds.base.utils import ogds_service
 from opengever.tabbedview.browser.tabs import OpengeverTab
 from opengever.tabbedview.helper import _breadcrumbs_from_item
@@ -157,6 +157,8 @@ class Overview(DisplayForm, OpengeverTab):
         def _get_issuer():
             info = getUtility(IContactInformation)
             task = ITask(self.context)
+
+            issuer = self.context.get_issuer_label()
 
             if not ogds_service().has_multiple_org_units():
                 return info.render_link(task.issuer)
@@ -330,11 +332,9 @@ class Overview(DisplayForm, OpengeverTab):
 
         css_class = self.get_css_class(item)
 
-        # get the client which the task cames from
         info = queryUtility(IContactInformation)
-        if info:
-            client = info.get_client_by_id(item.client_id)
-        if not info or not client:
+        admin_unit = ogds_service().fetch_admin_unit(item.admin_unit_id)
+        if not admin_unit:
             return '<span class="%s">%s</span>' % (css_class, item.title)
 
         # has the user access to the target task?
@@ -348,15 +348,15 @@ class Overview(DisplayForm, OpengeverTab):
             has_access = len(principals & allowed_principals) > 0
 
         # If the target is on a different client we need to make a popup
-        if item.client_id != get_client_id():
+        if item.admin_unit_id != get_current_admin_unit().id():
             link_target = ' target="_blank"'
-            url = '%s/%s' % (client.public_url, item.physical_path)
+            url = '%s/%s' % (admin_unit.public_url, item.physical_path)
         else:
             link_target = ''
-            url = client.public_url + '/' + item.physical_path
+            url = admin_unit.public_url + '/' + item.physical_path
 
         # create breadcrumbs including the (possibly remote) client title
-        breadcrumb_titles = "[%s] > %s" % (client.title, item.breadcrumb_title)
+        breadcrumb_titles = "[%s] > %s" % (admin_unit.title, item.breadcrumb_title)
 
         # Client and user info
         info_html = ' <span class="discreet">(%s / %s)</span>' % (
